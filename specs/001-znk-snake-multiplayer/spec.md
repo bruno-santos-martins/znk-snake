@@ -21,8 +21,9 @@ Como jogador, quero informar meu nome, ver a cor exclusiva em preview e entrar i
 **Acceptance Scenarios**:
 
 1. **Given** um jogador acessa a tela inicial, **When** informa nome valido, **Then** o sistema mostra preview com cor exclusiva, previa da cobrinha e instrucoes de controle.
-2. **Given** um jogador confirma entrada, **When** existe espaco livre para spawn, **Then** ele entra imediatamente no tabuleiro compartilhado sem fila de espera, priorizando posicao central e area livre ao redor da cobrinha.
-3. **Given** um jogador confirma entrada, **When** nao existe espaco livre suficiente para spawn, **Then** o sistema libera espaco removendo primeiro pontos de comida mais antigos e realiza a entrada imediatamente.
+2. **Given** um jogador acessa a tela inicial, **When** escolhe uma cor disponivel antes de entrar, **Then** o sistema reserva essa cor para o jogador.
+3. **Given** um jogador confirma entrada, **When** existe espaco livre para spawn, **Then** ele entra imediatamente no tabuleiro compartilhado sem fila de espera, priorizando posicao central e area livre ao redor da cobrinha.
+4. **Given** um jogador confirma entrada, **When** nao existe espaco livre suficiente para spawn, **Then** o sistema libera espaco removendo primeiro pontos de comida mais antigos e realiza a entrada imediatamente.
 
 ---
 
@@ -40,7 +41,7 @@ Como jogador em partida, quero mover minha cobrinha, coletar pontos e me benefic
 2. **Given** um jogador coleta ponto, **When** a coleta e processada, **Then** sua cobrinha cresce e sua pontuacao aumenta.
 3. **Given** ocorre colisao com parede, corpo proprio ou corpo de outra cobrinha, **When** a colisao e validada, **Then** o jogador morre instantaneamente e todo o corpo da cobrinha vira pontos coletaveis.
 4. **Given** uma cobrinha morre, **When** os pontos de seu corpo ficam no mapa, **Then** qualquer jogador pode coletar esses pontos para crescer e pontuar.
-5. **Given** ocorre colisao simultanea cabeca-com-cabeca, **When** ambas ocupam a mesma celula no mesmo instante, **Then** ambas as cobrinhas morrem e seus corpos viram pontos.
+5. **Given** ocorre colisao simultanea cabeca-com-cabeca, **When** ambas ocupam a mesma celula no mesmo instante, **Then** a cobrinha maior sobrevive e a menor morre; em empate de tamanho, ambas morrem.
 
 ---
 
@@ -57,14 +58,14 @@ Como jogador, quero que o ciclo so termine quando houver dominancia real no tabu
 1. **Given** resta apenas uma cobrinha viva, **When** restam entre 6 e 10 celulas livres no tabuleiro, **Then** o sistema declara essa cobrinha como vencedora do ciclo.
 2. **Given** restam 10 ou menos celulas livres, **When** a condicao e atingida, **Then** o sistema interrompe surgimento automatico de novos pontos ate a decisao de vitoria.
 3. **Given** um ponto de origem normal e coletado, **When** ocorre a coleta, **Then** o proximo ponto de origem normal so pode surgir apos 20 segundos e apenas se nao houver outro ponto de origem normal ativo no tabuleiro.
-3. **Given** as condicoes de vitoria sao atendidas simultaneamente, **When** o vencedor e confirmado, **Then** o sistema destaca a vitoria, registra nome/cor/tamanho/pontuacao/eliminacoes no Rank de Mestres e inicia novo ciclo com tabuleiro limpo.
+4. **Given** as condicoes de vitoria sao atendidas simultaneamente, **When** o vencedor e confirmado, **Then** o sistema destaca a vitoria, registra nome/cor/tamanho/pontuacao/eliminacoes no Rank de Mestres e inicia novo ciclo com tabuleiro limpo.
 
 ---
 
 ### Edge Cases
 
 - Se um jogador se desconectar abruptamente com cobrinha viva, sua cobrinha morre instantaneamente, vira pontos coletaveis e sua cor e liberada.
-- Se dois jogadores tentarem ocupar a mesma celula com colisao cabeca-com-cabeca no mesmo instante, ambos morrem.
+- Se dois jogadores tentarem ocupar a mesma celula com colisao cabeca-com-cabeca no mesmo instante, a maior sobrevive e a menor morre; em empate, ambas morrem.
 - Se o tabuleiro estiver ocupado a ponto de impedir spawn imediato, a entrada ou retorno acontece sem espera por meio da remocao dos pontos de comida mais antigos.
 - Se o tabuleiro tiver entre 6 e 10 celulas livres, mas ainda houver mais de uma cobrinha viva, o ciclo nao termina.
 - Se restarem menos de 6 celulas livres sem cumprimento completo da regra de vitoria, o sistema continua a rodada ate atingir novamente estado valido de decisao conforme regras do produto.
@@ -76,6 +77,7 @@ Como jogador, quero que o ciclo so termine quando houver dominancia real no tabu
 - **FR-001**: O sistema MUST permitir que o jogador informe nome antes de entrar no tabuleiro.
 - **FR-002**: O sistema MUST atribuir uma cor exclusiva para cada jogador ativo simultaneamente.
 - **FR-003**: O sistema MUST exibir, antes da entrada, preview com cor atribuida, previa visual da cobrinha e controles de movimento.
+- **FR-003A**: O sistema MUST permitir ao jogador escolher uma cor no lobby antes da reserva.
 - **FR-004**: O sistema MUST inserir o jogador imediatamente no tabuleiro apos confirmacao, sem fila de espera em qualquer circunstancia.
 - **FR-005**: O sistema MUST spawnar cobrinha inicial pequena em celula livre durante entrada ou retorno.
 - **FR-005A**: O spawn de entrada/retorno MUST priorizar posicoes proximas ao centro do tabuleiro.
@@ -87,7 +89,7 @@ Como jogador, quero que o ciclo so termine quando houver dominancia real no tabu
 - **FR-008B**: Apos coleta de um ponto de origem normal, o sistema MUST aguardar 20 segundos antes de permitir o proximo spawn de ponto de origem normal.
 - **FR-009**: O sistema MUST aumentar tamanho e pontuacao da cobrinha ao coletar um ponto.
 - **FR-010**: O sistema MUST aplicar morte instantanea ao jogador que colidir com parede, corpo proprio ou corpo de outra cobrinha.
-- **FR-011**: Em colisao cabeca-com-cabeca no mesmo instante, o sistema MUST eliminar todas as cobrinhas envolvidas.
+- **FR-011**: Em colisao cabeca-com-cabeca no mesmo instante, o sistema MUST eliminar a cobrinha menor e manter viva a maior; em empate de tamanho, MUST eliminar todas as cobrinhas envolvidas.
 - **FR-012**: Toda morte MUST converter integralmente o corpo da cobrinha em pontos coletaveis no tabuleiro.
 - **FR-013**: Pontos oriundos de cobrinha eliminada MUST permanecer no tabuleiro ate coleta por qualquer jogador.
 - **FR-014**: O jogador eliminado MUST permanecer na sessao e poder retornar imediatamente no mesmo tabuleiro com nova cor exclusiva.

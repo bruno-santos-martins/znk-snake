@@ -152,6 +152,8 @@
 - [X] T070 Execute workspace quality gates (`yarn typecheck`, `yarn test`, `yarn dev`) and fix blockers across package.json, server/, client/, and shared/
 - [X] T071 Atualizar logica de spawn para priorizar centro com validacao de area segura em server/src/services/GameService.ts e cobrir com teste unitario em server/tests/unit/spawn-threshold.unit.test.ts
 - [X] T072 Atualizar pacing de comida normal para cooldown de 20s apos coleta e no maximo 1 item normal ativo por vez em server/src/services/GameService.ts e server/src/config/env.ts
+- [X] T073 Permitir escolha de cor no lobby e reserva de cor preferida no fluxo player:prepare com validacao de disponibilidade no servidor
+- [X] T074 Atualizar arbitragem de colisao: cabeca-corpo elimina atacante; cabeca-cabeca elimina menor e preserva maior (empate elimina ambas), com testes em server/tests/unit/collision-resolution.unit.test.ts
 
 ---
 

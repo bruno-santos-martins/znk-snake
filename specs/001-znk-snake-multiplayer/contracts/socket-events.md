@@ -9,6 +9,8 @@
 - Purpose: Request color reservation before entering board.
 - Payload:
   - name: string (1..24)
+  - sessionId: string (optional)
+  - preferredColor: string (optional, must be available)
 - Success response:
   - player:colorAssigned
 - Errors:
@@ -19,6 +21,7 @@
 - Payload:
   - name: string (1..24)
   - reservationId: string
+  - sessionId: string (optional)
 - Success response:
   - player:joined
   - game:state
@@ -29,6 +32,7 @@
 - Purpose: Submit intended direction change.
 - Payload:
   - direction: up | down | left | right
+  - sessionId: string (optional)
 - Success response:
   - game:state (next tick broadcast)
 
@@ -36,6 +40,7 @@
 - Purpose: Re-enter immediately after death.
 - Payload:
   - reservationId: string (optional if server supports direct reuse flow)
+  - sessionId: string (optional)
 - Success response:
   - player:joined
   - game:state
@@ -99,6 +104,8 @@
 ## Validation Rules
 - Reservation required for join unless explicit server fallback is documented.
 - Active players must have unique colors.
+- Preferred color reservation fails when color is already active or reserved.
 - No waiting queue allowed on join/respawn.
 - Spawn-space recovery removes oldest food first, never live snake segments.
+- Head-to-head collisions eliminate the smaller snake; equal sizes eliminate both.
 - Victory must satisfy: exactly one alive snake AND 6..10 free cells inclusive.

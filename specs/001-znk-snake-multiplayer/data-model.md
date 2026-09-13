@@ -28,6 +28,7 @@
   - prepared -> alive on player:join
   - alive -> dead on collision/disconnect
   - dead -> alive on player:respawn
+  - dead -> alive with new color on player:respawn
 
 ## Snake
 - Fields:
@@ -43,6 +44,7 @@
   - Spawn must place all initial segments on free cells.
   - Join/respawn spawn prioritizes candidates near board center.
   - Spawn prefers one-cell safety neighborhood around initial segments; if unavailable, fallback keeps immediate-entry guarantee.
+  - In head-to-head collision on same target cell, larger snake survives; equal sizes eliminate both.
 
 ## Food
 - Fields:
@@ -99,12 +101,12 @@
   - Valid only when one snake alive and 6 <= freeCells <= 10.
 
 ## Socket Event Payloads (Domain View)
-- player:prepare -> { name }
+- player:prepare -> { name, sessionId?, preferredColor? }
 - player:colorAssigned -> { reservationId, color }
-- player:join -> { name, reservationId }
+- player:join -> { name, reservationId, sessionId? }
 - player:joined -> { playerId, color, state }
-- player:move -> { direction }
-- player:respawn -> { reservationId? }
+- player:move -> { direction, sessionId? }
+- player:respawn -> { reservationId?, sessionId? }
 - player:died -> { playerId, cause }
 - game:state -> { state }
 - game:victory -> { name, color, size, score, kills, cycleId }

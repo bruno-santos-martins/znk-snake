@@ -118,13 +118,24 @@ export class GameService {
       for (let j = i + 1; j < aliveSnakes.length; j += 1) {
         const a = aliveSnakes[i];
         const b = aliveSnakes[j];
+        if (killed.has(a.id) || killed.has(b.id)) continue;
         const na = snapshotHeads.get(a.id)!;
         const nb = snapshotHeads.get(b.id)!;
         if (samePos(na, nb)) {
-          if (!killed.has(a.id)) deaths.push({ playerId: a.playerId, cause: 'head-to-head' });
-          if (!killed.has(b.id)) deaths.push({ playerId: b.playerId, cause: 'head-to-head' });
-          killed.add(a.id);
-          killed.add(b.id);
+          const aSize = a.segments.length;
+          const bSize = b.segments.length;
+
+          if (aSize === bSize) {
+            deaths.push({ playerId: a.playerId, cause: 'head-to-head' });
+            deaths.push({ playerId: b.playerId, cause: 'head-to-head' });
+            killed.add(a.id);
+            killed.add(b.id);
+            continue;
+          }
+
+          const loser = aSize > bSize ? b : a;
+          deaths.push({ playerId: loser.playerId, cause: 'head-to-head' });
+          killed.add(loser.id);
         }
       }
     }

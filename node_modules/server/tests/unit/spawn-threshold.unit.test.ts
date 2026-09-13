@@ -120,4 +120,24 @@ describe('spawn threshold', () => {
       }
     }
   });
+
+  it('changes player color on respawn', () => {
+    const { store, game } = createGame();
+
+    const reservation = game.prepare('p1', 'Player 1');
+    const joined = game.join('p1', 'Player 1', reservation.reservationId);
+    const initialColor = joined.color;
+
+    const snake = store.state.board.snakes.find((s) => s.playerId === 'p1');
+    expect(snake).toBeDefined();
+
+    snake!.segments = [{ x: 0, y: 0 }];
+    snake!.direction = 'left';
+    snake!.nextDirection = 'left';
+
+    game.tick();
+
+    const respawned = game.respawn('p1');
+    expect(respawned.color).not.toBe(initialColor);
+  });
 });

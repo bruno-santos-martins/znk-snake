@@ -29,8 +29,8 @@
   - Removing live snake segments to create space: rejected as unfair and rule-breaking.
 
 ## Decision 5: Color uniqueness and reservation expiry
-- Decision: Reserve colors at prepare step, enforce unique active colors, and auto-expire unconfirmed reservations after short timeout.
-- Rationale: Supports preview-before-join UX while preventing color leaks.
+- Decision: Allow player-selected color at prepare step, enforce unique active colors, and auto-expire unconfirmed reservations after short timeout.
+- Rationale: Supports intentional identity choice in lobby while preventing color conflicts and leaks.
 - Alternatives considered:
   - Assign only on join: rejected because preview would be impossible.
   - Infinite reservations: rejected due to palette exhaustion risk.
@@ -53,6 +53,13 @@
 - Rationale: Keeps domain logic resolution independent from display mechanics.
 - Alternatives considered:
   - Pixel-based collision logic: rejected for complexity and precision instability.
+
+## Decision 9: Collision arbitration updates
+- Decision: For head-to-body collisions, only the snake that moves its head into another snake is eliminated. For simultaneous head-to-head collisions, larger snake survives and smaller snake is eliminated; ties eliminate both.
+- Rationale: Improves competitive readability and rewards growth advantage while preserving deterministic tie behavior.
+- Alternatives considered:
+  - Always eliminate both in head-to-head: rejected for not using snake size progression as strategic factor.
+  - Eliminate defender on head-to-body: rejected because it contradicts directional collision intuition.
 
 ## Open Governance Note
 - The current constitution states reset only at full occupancy.

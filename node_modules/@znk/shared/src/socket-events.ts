@@ -1,6 +1,6 @@
 import type { DeathCause, Direction, GameState, MasterRankEntry } from './game.types';
 
-export type PlayerPreparePayload = { name: string; sessionId?: string };
+export type PlayerPreparePayload = { name: string; sessionId?: string; preferredColor?: string };
 export type PlayerJoinPayload = { name: string; reservationId: string; sessionId?: string };
 export type PlayerMovePayload = { direction: Direction; sessionId?: string };
 export type PlayerRespawnPayload = { reservationId?: string; sessionId?: string };

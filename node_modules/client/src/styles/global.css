@@ -9,6 +9,10 @@ body { margin: 0; }
 
 .lobby { min-height: 100vh; display: grid; place-content: center; gap: 12px; }
 .lobby input, .lobby button { padding: 10px 14px; border-radius: 10px; border: 0; }
+.color-picker { display: grid; grid-template-columns: repeat(6, 28px); gap: 10px; justify-content: center; }
+.color-option { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.35); cursor: pointer; }
+.color-option.selected { border-color: #ffffff; transform: scale(1.1); }
+.error-text { color: #ff8fa3; text-align: center; margin: 0; }
 
 .game-shell {
   min-height: 100vh;

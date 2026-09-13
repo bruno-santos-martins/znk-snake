@@ -17,9 +17,10 @@ type Ctx = {
   state: GameState | null;
   freeCells: number;
   reservation: PlayerColorAssignedPayload | null;
+  errorMessage: string | null;
   victory: GameVictoryPayload | null;
   isDead: boolean;
-  prepare: (name: string) => void;
+  prepare: (name: string, preferredColor?: string) => void;
   join: (name: string) => void;
   respawn: () => void;
   sendMove: (direction: Direction) => void;
@@ -35,10 +36,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [state, setState] = useState<GameState | null>(null);
   const [freeCells, setFreeCells] = useState(0);
   const [reservation, setReservation] = useState<PlayerColorAssignedPayload | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [victory, setVictory] = useState<GameVictoryPayload | null>(null);
 
   useEffect(() => {
-    socket.on('player:colorAssigned', (payload: PlayerColorAssignedPayload) => setReservation(payload));
+    socket.on('player:colorAssigned', (payload: PlayerColorAssignedPayload) => {
+      setReservation(payload);
+      setErrorMessage(null);
+    });
     socket.on('player:joined', (payload: { playerId: string; name: string; color: string }) => {
       setPlayer((prev) => ({
         id: payload.playerId,
@@ -60,17 +65,25 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
     socket.on('game:victory', (payload: GameVictoryPayload) => setVictory(payload));
+    socket.on('server:error', (payload: { code: string; message: string }) => {
+      if (payload.code === 'PREPARE_FAILED') {
+        setErrorMessage('This color is unavailable. Choose another one.');
+      } else {
+        setErrorMessage(payload.message);
+      }
+    });
     return () => {
       socket.off('player:colorAssigned');
       socket.off('player:joined');
       socket.off('game:state');
       socket.off('game:victory');
+      socket.off('server:error');
     };
   }, [socket, player]);
 
-  const prepare = (name: string) => {
+  const prepare = (name: string, preferredColor?: string) => {
     setNameDraft(name);
-    socket.emit('player:prepare', { name, sessionId });
+    socket.emit('player:prepare', { name, sessionId, preferredColor });
   };
 
   const join = (name: string) => {
@@ -91,13 +104,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     state,
     freeCells,
     reservation,
+    errorMessage,
     victory,
     isDead: !!player && player.status !== 'alive',
     prepare,
     join,
     respawn,
     sendMove
-  }), [player, state, freeCells, reservation, victory]);
+  }), [player, state, freeCells, reservation, errorMessage, victory]);
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 };

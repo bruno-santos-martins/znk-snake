@@ -21,7 +21,7 @@ export const registerGameSocket = (io: Server, controller: GameController, tickF
     socket.on('player:prepare', (payload: PlayerPreparePayload) => {
       try {
         const playerId = resolvePlayerId(payload.sessionId);
-        const result = controller.prepare(playerId, payload.name);
+        const result = controller.prepare(playerId, payload.name, payload.preferredColor);
         socket.emit('player:colorAssigned', result);
       } catch (err) {
         socket.emit('server:error', { code: 'PREPARE_FAILED', message: String(err) });

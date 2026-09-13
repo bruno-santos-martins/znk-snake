@@ -14,11 +14,13 @@
 ## Scenario A: Prepare -> Preview -> Join
 1. Open two browser tabs.
 2. In each tab, enter a different player name.
-3. Confirm preview appears with assigned color before join.
-4. Confirm join succeeds immediately for both players.
+3. Escolha uma cor em cada aba.
+4. Confirm preview appears with assigned color before join.
+5. Confirm join succeeds immediately for both players.
 
 Expected results:
 - Colors are unique across active players.
+- Se duas abas escolherem a mesma cor, a segunda recebe erro e precisa escolher outra.
 - No waiting queue is presented.
 - Spawn inicial ocorre proximo ao centro quando ha espaco central disponivel.
 - Cobrinha nasce com area imediata ao redor sem obstaculos, quando houver candidato seguro.
@@ -35,12 +37,15 @@ Expected results:
 ## Scenario C: Collision and Body-to-Food Conversion
 1. Cause wall collision for player A.
 2. Cause enemy-body collision for player B.
-3. Cause head-to-head collision for players C and D.
+3. Cause head-to-head collision for players C and D with different sizes.
+4. Repeat head-to-head with equal sizes.
 
 Expected results:
 - Relevant snakes die instantly.
 - Entire snake bodies become collectible food.
 - Other players can consume those points and grow.
+- Em head-to-head com tamanhos diferentes, a menor morre e a maior sobrevive.
+- Em head-to-head com tamanhos iguais, ambas morrem.
 
 ## Scenario D: Spawn Blocking at <=10 Free Cells
 1. Progress round until freeCells <= 10.
@@ -88,4 +93,4 @@ Expected results:
 - Command: yarn.cmd typecheck
 - Observed result: passed for shared, server, and client.
 - Command: yarn.cmd test
-- Observed result: server tests passed (10/10), shared/client passed with no tests.
+- Observed result: server tests passed (14/14), shared/client passed with no tests.
