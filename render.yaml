@@ -3,7 +3,7 @@ services:
     name: znk-snake-server
     env: node
     plan: free
-    buildCommand: yarn install --frozen-lockfile; yarn workspace @znk/shared build; yarn workspace server build
+    buildCommand: yarn install --frozen-lockfile; yarn workspace @znk/shared build
     startCommand: yarn workspace server start
     autoDeploy: true
     envVars:

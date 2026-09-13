@@ -47,7 +47,9 @@ export class GameService {
   respawn(playerId: string): Player {
     const player = this.store.getPlayer(playerId);
     if (!player) throw new Error('Player not found');
-    const reservation = this.colorService.reserveColor(this.store.colorReservations, playerId, env.RESERVATION_TTL_MS);
+    const reservation = this.colorService.reserveColor(this.store.colorReservations, playerId, env.RESERVATION_TTL_MS, {
+      excludeColors: [player.color]
+    });
     const claimed = this.colorService.claimReservedColor(this.store.colorReservations, reservation.reservationId, playerId);
     if (!claimed) throw new Error('Failed to reserve color');
     player.color = claimed;
