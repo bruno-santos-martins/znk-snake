@@ -10,11 +10,10 @@ services:
       - key: CLIENT_ORIGIN
         sync: false
 
-  - type: static
-    name: znk-snake-client
-    plan: free
+staticSites:
+  - name: znk-snake-client
     buildCommand: yarn install --frozen-lockfile; yarn workspace @znk/shared build; yarn workspace client build
-    staticPublishPath: client/dist
+    publishPath: client/dist
     autoDeploy: true
     envVars:
       - key: VITE_SERVER_URL
