@@ -1,0 +1,20 @@
+{
+  "name": "znk-snake",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn workspace server dev\" \"yarn workspace client dev\"",
+    "build": "yarn workspace @znk/shared build && yarn workspace server build && yarn workspace client build",
+    "test": "yarn workspace @znk/shared test && yarn workspace server test && yarn workspace client test",
+    "typecheck": "yarn workspace @znk/shared typecheck && yarn workspace server typecheck && yarn workspace client typecheck"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "typescript": "^5.6.2"
+  }
+}
