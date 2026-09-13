@@ -1,5 +1,5 @@
 export const env = {
-  PORT: 4000,
+  PORT: Number(process.env.PORT ?? 4000),
   CLIENT_ORIGIN: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173',
   RESERVATION_TTL_MS: 20000,
   FOOD_RESPAWN_MS: 20000,

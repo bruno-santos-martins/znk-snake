@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: znk-snake-server
+    env: node
+    plan: free
+    buildCommand: yarn install --frozen-lockfile; yarn workspace @znk/shared build; yarn workspace server build
+    startCommand: yarn workspace server start
+    autoDeploy: true
+    envVars:
+      - key: CLIENT_ORIGIN
+        sync: false
+
+  - type: static
+    name: znk-snake-client
+    plan: free
+    buildCommand: yarn install --frozen-lockfile; yarn workspace @znk/shared build; yarn workspace client build
+    staticPublishPath: client/dist
+    autoDeploy: true
+    envVars:
+      - key: VITE_SERVER_URL
+        sync: false
