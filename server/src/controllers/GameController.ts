@@ -4,8 +4,8 @@ import { GameService } from '../services/GameService';
 export class GameController {
   constructor(private gameService: GameService) {}
 
-  prepare(playerId: string, name: string) {
-    return this.gameService.prepare(playerId, name);
+  prepare(playerId: string, name: string, preferredColor?: string) {
+    return this.gameService.prepare(playerId, name, preferredColor);
   }
 
   join(playerId: string, name: string, reservationId: string) {

@@ -13,10 +13,11 @@ export class ColorService {
     reservations: Map<string, { color: string; playerId: string; expiresAt: number }>,
     playerId: string,
     ttlMs: number,
-    options?: { excludeColors?: string[] }
+    options?: { excludeColors?: string[]; preferredColor?: string }
   ): { reservationId: string; color: string; expiresAt: number } {
     const excluded = new Set(options?.excludeColors ?? []);
-    const color = this.pickColor(excluded);
+    const preferred = options?.preferredColor?.trim();
+    const color = preferred && preferred.length > 0 ? this.pickPreferredColor(preferred, excluded) : this.pickColor(excluded);
     const reservationId = `res_${playerId}_${Math.random().toString(36).slice(2, 9)}`;
     const expiresAt = nowMs() + ttlMs;
     this.activeColors.add(color);
@@ -75,5 +76,10 @@ export class ColorService {
     }
 
     return `hsl(${Date.now() % 360} 100% 50%)`;
+  }
+
+  private pickPreferredColor(preferred: string, excluded: Set<string>): string {
+    if (!this.activeColors.has(preferred) && !excluded.has(preferred)) return preferred;
+    throw new Error('Preferred color is unavailable');
   }
 }

@@ -25,9 +25,11 @@ export class GameService {
     return this.store.state;
   }
 
-  prepare(playerId: string, name: string): { reservationId: string; color: string; expiresAt: number } {
+  prepare(playerId: string, name: string, preferredColor?: string): { reservationId: string; color: string; expiresAt: number } {
     const p = this.playerService.ensurePlayer(this.store.state.players, playerId, name);
-    const reservation = this.colorService.reserveColor(this.store.colorReservations, playerId, env.RESERVATION_TTL_MS);
+    const reservation = this.colorService.reserveColor(this.store.colorReservations, playerId, env.RESERVATION_TTL_MS, {
+      preferredColor
+    });
     p.reservationId = reservation.reservationId;
     p.reservedAt = Date.now();
     p.status = 'prepared';
