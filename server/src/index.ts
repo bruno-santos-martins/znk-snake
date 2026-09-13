@@ -54,6 +54,14 @@ const tick = () => {
 registerGameSocket(io, controller, tick);
 setInterval(() => gameService.spawnTick(), env.SPAWN_TICK_MS);
 
+app.get('/', (_req, res) => {
+  res.json({
+    service: 'znk-snake-server',
+    ok: true,
+    health: '/health'
+  });
+});
+
 app.get('/health', (_req, res) => {
   res.json({ ok: true });
 });
