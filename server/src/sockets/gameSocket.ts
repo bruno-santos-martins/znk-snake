@@ -2,6 +2,8 @@ import type { Server } from 'socket.io';
 import type { Direction, GameVictoryPayload, PlayerDiedPayload, PlayerJoinPayload, PlayerMovePayload, PlayerPreparePayload, PlayerRespawnPayload } from '@znk/shared';
 import { GameController } from '../controllers/GameController';
 
+type PlayerPreparePayloadWithColor = PlayerPreparePayload & { preferredColor?: string };
+
 export const registerGameSocket = (io: Server, controller: GameController, tickFn: () => void): void => {
   const emitState = () => {
     const state = controller.state();
@@ -24,7 +26,7 @@ export const registerGameSocket = (io: Server, controller: GameController, tickF
       return playerId;
     };
 
-    socket.on('player:prepare', (payload: PlayerPreparePayload) => {
+    socket.on('player:prepare', (payload: PlayerPreparePayloadWithColor) => {
       try {
         const playerId = resolvePlayerId(payload.sessionId);
         const result = controller.prepare(playerId, payload.name, payload.preferredColor);
