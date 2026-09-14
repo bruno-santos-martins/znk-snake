@@ -4,7 +4,7 @@ services:
     env: node
     plan: free
     buildCommand: yarn install --frozen-lockfile; yarn workspace @znk/shared build; yarn workspace server build
-    startCommand: node server/dist/src/index.js
+    startCommand: yarn workspace server tsx dist/src/index.js
     healthCheckPath: /health
     autoDeploy: true
     envVars:
