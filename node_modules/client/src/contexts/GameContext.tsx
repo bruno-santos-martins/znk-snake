@@ -2,6 +2,8 @@ import React, { createContext, useContext, useEffect, useMemo, useRef, useState 
 import type { Direction, GameState, GameVictoryPayload, Player, PlayerColorAssignedPayload, PlayerDiedPayload } from '@znk/shared';
 import { useSocket } from '../hooks/useSocket';
 
+type PlayerDiedPayloadWithKiller = PlayerDiedPayload & { killerPlayerId?: string };
+
 const SESSION_STORAGE_KEY = 'znk.sessionId';
 
 const ensureSessionId = (): string => {
@@ -84,7 +86,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     socket.on('player:died', (payload: PlayerDiedPayload) => {
       const victim = nameByPlayerIdRef.current.get(payload.playerId) ?? payload.playerId;
-      const killer = payload.killerPlayerId ? (nameByPlayerIdRef.current.get(payload.killerPlayerId) ?? payload.killerPlayerId) : null;
+      const killerId = (payload as PlayerDiedPayloadWithKiller).killerPlayerId;
+      const killer = killerId ? (nameByPlayerIdRef.current.get(killerId) ?? killerId) : null;
       if (killer) {
         pushLog(`${killer} killed ${victim}`);
       } else {

@@ -64,7 +64,8 @@ export const GameProvider = ({ children }) => {
         });
         socket.on('player:died', (payload) => {
             const victim = nameByPlayerIdRef.current.get(payload.playerId) ?? payload.playerId;
-            const killer = payload.killerPlayerId ? (nameByPlayerIdRef.current.get(payload.killerPlayerId) ?? payload.killerPlayerId) : null;
+            const killerId = payload.killerPlayerId;
+            const killer = killerId ? (nameByPlayerIdRef.current.get(killerId) ?? killerId) : null;
             if (killer) {
                 pushLog(`${killer} killed ${victim}`);
             }
