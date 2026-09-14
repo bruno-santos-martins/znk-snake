@@ -42,7 +42,6 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activityLog, setActivityLog] = useState<string[]>([]);
   const [victory, setVictory] = useState<GameVictoryPayload | null>(null);
-  const scoreByPlayerIdRef = useRef<Map<string, number>>(new Map());
   const nameByPlayerIdRef = useRef<Map<string, string>>(new Map());
 
   const pushLog = (entry: string) => {
@@ -68,11 +67,6 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     socket.on('game:state', (payload: { state: GameState; freeCells: number }) => {
       for (const p of payload.state.players) {
-        const previous = scoreByPlayerIdRef.current.get(p.id) ?? p.score;
-        if (p.score > previous) {
-          pushLog(`${p.name} scored +${p.score - previous}`);
-        }
-        scoreByPlayerIdRef.current.set(p.id, p.score);
         nameByPlayerIdRef.current.set(p.id, p.name);
       }
 
@@ -90,8 +84,6 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const killer = killerId ? (nameByPlayerIdRef.current.get(killerId) ?? killerId) : null;
       if (killer) {
         pushLog(`${killer} killed ${victim}`);
-      } else {
-        pushLog(`${victim} died (${payload.cause})`);
       }
     });
     socket.on('game:victory', (payload: GameVictoryPayload) => setVictory(payload));

@@ -22,7 +22,6 @@ export const GameProvider = ({ children }) => {
     const [errorMessage, setErrorMessage] = useState(null);
     const [activityLog, setActivityLog] = useState([]);
     const [victory, setVictory] = useState(null);
-    const scoreByPlayerIdRef = useRef(new Map());
     const nameByPlayerIdRef = useRef(new Map());
     const pushLog = (entry) => {
         setActivityLog((prev) => [entry, ...prev].slice(0, 10));
@@ -46,11 +45,6 @@ export const GameProvider = ({ children }) => {
         });
         socket.on('game:state', (payload) => {
             for (const p of payload.state.players) {
-                const previous = scoreByPlayerIdRef.current.get(p.id) ?? p.score;
-                if (p.score > previous) {
-                    pushLog(`${p.name} scored +${p.score - previous}`);
-                }
-                scoreByPlayerIdRef.current.set(p.id, p.score);
                 nameByPlayerIdRef.current.set(p.id, p.name);
             }
             setState(payload.state);
@@ -68,9 +62,6 @@ export const GameProvider = ({ children }) => {
             const killer = killerId ? (nameByPlayerIdRef.current.get(killerId) ?? killerId) : null;
             if (killer) {
                 pushLog(`${killer} killed ${victim}`);
-            }
-            else {
-                pushLog(`${victim} died (${payload.cause})`);
             }
         });
         socket.on('game:victory', (payload) => setVictory(payload));

@@ -27,6 +27,17 @@ export const GamePage: React.FC = () => {
             ))}
           </ul>
         </section>
+        <section className="rank online-players">
+          <h3>Players Online</h3>
+          <ul>
+            {state.players.map((p) => (
+              <li key={p.id}>
+                <span className="online-dot" style={{ background: p.color }} />
+                <span>{p.name}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
       </section>
       <DeathOverlay show={isDead} onRespawn={respawn} />
       <VictoryModal victory={victory} />

@@ -114,6 +114,9 @@ body { margin: 0; }
 .right-panel { display: grid; gap: 12px; }
 .feed ul { list-style: none; padding-left: 0; margin: 8px 0 0; display: grid; gap: 6px; }
 .feed li { font-size: 13px; color: #d8eeff; border-left: 2px solid rgba(123, 226, 255, 0.8); padding-left: 8px; }
+.online-players ul { list-style: none; padding-left: 0; margin: 8px 0 0; display: grid; gap: 8px; }
+.online-players li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #d8eeff; }
+.online-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
 
 .overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,0.5); }
 .overlay.victory { background: rgba(14, 81, 35, 0.45); }
