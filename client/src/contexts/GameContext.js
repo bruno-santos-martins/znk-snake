@@ -1,5 +1,5 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useSocket } from '../hooks/useSocket';
 const SESSION_STORAGE_KEY = 'znk.sessionId';
 const ensureSessionId = () => {
@@ -20,7 +20,13 @@ export const GameProvider = ({ children }) => {
     const [freeCells, setFreeCells] = useState(0);
     const [reservation, setReservation] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
+    const [activityLog, setActivityLog] = useState([]);
     const [victory, setVictory] = useState(null);
+    const scoreByPlayerIdRef = useRef(new Map());
+    const nameByPlayerIdRef = useRef(new Map());
+    const pushLog = (entry) => {
+        setActivityLog((prev) => [entry, ...prev].slice(0, 10));
+    };
     useEffect(() => {
         socket.on('player:colorAssigned', (payload) => {
             setReservation(payload);
@@ -39,6 +45,14 @@ export const GameProvider = ({ children }) => {
             }));
         });
         socket.on('game:state', (payload) => {
+            for (const p of payload.state.players) {
+                const previous = scoreByPlayerIdRef.current.get(p.id) ?? p.score;
+                if (p.score > previous) {
+                    pushLog(`${p.name} scored +${p.score - previous}`);
+                }
+                scoreByPlayerIdRef.current.set(p.id, p.score);
+                nameByPlayerIdRef.current.set(p.id, p.name);
+            }
             setState(payload.state);
             setFreeCells(payload.freeCells);
             setPlayer((prev) => {
@@ -47,6 +61,16 @@ export const GameProvider = ({ children }) => {
                 const updated = payload.state.players.find((p) => p.id === prev.id) ?? null;
                 return updated ?? prev;
             });
+        });
+        socket.on('player:died', (payload) => {
+            const victim = nameByPlayerIdRef.current.get(payload.playerId) ?? payload.playerId;
+            const killer = payload.killerPlayerId ? (nameByPlayerIdRef.current.get(payload.killerPlayerId) ?? payload.killerPlayerId) : null;
+            if (killer) {
+                pushLog(`${killer} killed ${victim}`);
+            }
+            else {
+                pushLog(`${victim} died (${payload.cause})`);
+            }
         });
         socket.on('game:victory', (payload) => setVictory(payload));
         socket.on('server:error', (payload) => {
@@ -61,6 +85,7 @@ export const GameProvider = ({ children }) => {
             socket.off('player:colorAssigned');
             socket.off('player:joined');
             socket.off('game:state');
+            socket.off('player:died');
             socket.off('game:victory');
             socket.off('server:error');
         };
@@ -86,13 +111,14 @@ export const GameProvider = ({ children }) => {
         freeCells,
         reservation,
         errorMessage,
+        activityLog,
         victory,
         isDead: !!player && player.status !== 'alive',
         prepare,
         join,
         respawn,
         sendMove
-    }), [player, state, freeCells, reservation, errorMessage, victory]);
+    }), [player, state, freeCells, reservation, errorMessage, activityLog, victory]);
     return _jsx(GameContext.Provider, { value: value, children: children });
 };
 export const useGameContext = () => {

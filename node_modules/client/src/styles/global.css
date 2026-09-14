@@ -34,6 +34,9 @@ body { margin: 0; }
 
 .hud, .rank, .panel { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; }
 .dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #fff; }
+.right-panel { display: grid; gap: 12px; }
+.feed ul { list-style: none; padding-left: 0; margin: 8px 0 0; display: grid; gap: 6px; }
+.feed li { font-size: 13px; color: #d8eeff; border-left: 2px solid rgba(123, 226, 255, 0.8); padding-left: 8px; }
 
 .overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,0.5); }
 .overlay.victory { background: rgba(14, 81, 35, 0.45); }

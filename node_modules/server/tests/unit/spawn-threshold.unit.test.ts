@@ -32,7 +32,7 @@ describe('spawn threshold', () => {
     expect(store.state.board.food).toHaveLength(0);
   });
 
-  it('spawns a new point only 20s after the previous spawned point is eaten', () => {
+  it('spawns a new point only 2s after the previous spawned point is eaten', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
 
@@ -69,7 +69,7 @@ describe('spawn threshold', () => {
     game.spawnTick();
     expect(store.state.board.food).toHaveLength(0);
 
-    vi.advanceTimersByTime(19999);
+    vi.advanceTimersByTime(1999);
     game.spawnTick();
     expect(store.state.board.food).toHaveLength(0);
 

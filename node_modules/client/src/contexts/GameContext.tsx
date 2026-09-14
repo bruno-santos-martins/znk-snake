@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import type { Direction, GameState, GameVictoryPayload, Player, PlayerColorAssignedPayload } from '@znk/shared';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import type { Direction, GameState, GameVictoryPayload, Player, PlayerColorAssignedPayload, PlayerDiedPayload } from '@znk/shared';
 import { useSocket } from '../hooks/useSocket';
 
 const SESSION_STORAGE_KEY = 'znk.sessionId';
@@ -18,6 +18,7 @@ type Ctx = {
   freeCells: number;
   reservation: PlayerColorAssignedPayload | null;
   errorMessage: string | null;
+  activityLog: string[];
   victory: GameVictoryPayload | null;
   isDead: boolean;
   prepare: (name: string, preferredColor?: string) => void;
@@ -37,7 +38,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [freeCells, setFreeCells] = useState(0);
   const [reservation, setReservation] = useState<PlayerColorAssignedPayload | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [activityLog, setActivityLog] = useState<string[]>([]);
   const [victory, setVictory] = useState<GameVictoryPayload | null>(null);
+  const scoreByPlayerIdRef = useRef<Map<string, number>>(new Map());
+  const nameByPlayerIdRef = useRef<Map<string, string>>(new Map());
+
+  const pushLog = (entry: string) => {
+    setActivityLog((prev) => [entry, ...prev].slice(0, 10));
+  };
 
   useEffect(() => {
     socket.on('player:colorAssigned', (payload: PlayerColorAssignedPayload) => {
@@ -57,6 +65,15 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }));
     });
     socket.on('game:state', (payload: { state: GameState; freeCells: number }) => {
+      for (const p of payload.state.players) {
+        const previous = scoreByPlayerIdRef.current.get(p.id) ?? p.score;
+        if (p.score > previous) {
+          pushLog(`${p.name} scored +${p.score - previous}`);
+        }
+        scoreByPlayerIdRef.current.set(p.id, p.score);
+        nameByPlayerIdRef.current.set(p.id, p.name);
+      }
+
       setState(payload.state);
       setFreeCells(payload.freeCells);
       setPlayer((prev) => {
@@ -64,6 +81,15 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const updated = payload.state.players.find((p) => p.id === prev.id) ?? null;
         return updated ?? prev;
       });
+    });
+    socket.on('player:died', (payload: PlayerDiedPayload) => {
+      const victim = nameByPlayerIdRef.current.get(payload.playerId) ?? payload.playerId;
+      const killer = payload.killerPlayerId ? (nameByPlayerIdRef.current.get(payload.killerPlayerId) ?? payload.killerPlayerId) : null;
+      if (killer) {
+        pushLog(`${killer} killed ${victim}`);
+      } else {
+        pushLog(`${victim} died (${payload.cause})`);
+      }
     });
     socket.on('game:victory', (payload: GameVictoryPayload) => setVictory(payload));
     socket.on('server:error', (payload: { code: string; message: string }) => {
@@ -77,6 +103,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       socket.off('player:colorAssigned');
       socket.off('player:joined');
       socket.off('game:state');
+      socket.off('player:died');
       socket.off('game:victory');
       socket.off('server:error');
     };
@@ -106,13 +133,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     freeCells,
     reservation,
     errorMessage,
+    activityLog,
     victory,
     isDead: !!player && player.status !== 'alive',
     prepare,
     join,
     respawn,
     sendMove
-  }), [player, state, freeCells, reservation, errorMessage, victory]);
+  }), [player, state, freeCells, reservation, errorMessage, activityLog, victory]);
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 };

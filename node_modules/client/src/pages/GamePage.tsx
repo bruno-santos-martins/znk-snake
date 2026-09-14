@@ -8,7 +8,7 @@ import { useGameState } from '../hooks/useGameState';
 import { useKeyboardControls } from '../hooks/useKeyboardControls';
 
 export const GamePage: React.FC = () => {
-  const { state, player, freeCells, isDead, victory, sendMove, respawn } = useGameState();
+  const { state, player, freeCells, activityLog, isDead, victory, sendMove, respawn } = useGameState();
   useKeyboardControls(sendMove);
 
   if (!state || !player) return <p className="loading">Waiting state...</p>;
@@ -17,7 +17,17 @@ export const GamePage: React.FC = () => {
     <main className="game-shell">
       <PlayerHUD name={player.name} color={player.color} score={player.score} kills={player.kills} freeCells={freeCells} />
       <Board snakes={state.board.snakes} players={state.players} food={state.board.food} />
-      <MastersRank masters={state.masters} />
+      <section className="right-panel">
+        <MastersRank masters={state.masters} />
+        <section className="rank feed">
+          <h3>Battle Log</h3>
+          <ul>
+            {activityLog.map((line, idx) => (
+              <li key={`${line}-${idx}`}>{line}</li>
+            ))}
+          </ul>
+        </section>
+      </section>
       <DeathOverlay show={isDead} onRespawn={respawn} />
       <VictoryModal victory={victory} />
     </main>

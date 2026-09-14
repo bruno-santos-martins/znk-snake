@@ -9,6 +9,7 @@ export const useGameState = () => {
     freeCells: ctx.freeCells,
     reservation: ctx.reservation,
     errorMessage: ctx.errorMessage,
+    activityLog: ctx.activityLog,
     isDead: ctx.isDead,
     victory: ctx.victory,
     prepare: ctx.prepare,
