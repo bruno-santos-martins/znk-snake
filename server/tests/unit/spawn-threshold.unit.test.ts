@@ -121,7 +121,7 @@ describe('spawn threshold', () => {
     }
   });
 
-  it('changes player color on respawn', () => {
+  it('keeps player color on respawn', () => {
     const { store, game } = createGame();
 
     const reservation = game.prepare('p1', 'Player 1');
@@ -138,6 +138,6 @@ describe('spawn threshold', () => {
     game.tick();
 
     const respawned = game.respawn('p1');
-    expect(respawned.color).not.toBe(initialColor);
+    expect(respawned.color).toBe(initialColor);
   });
 });

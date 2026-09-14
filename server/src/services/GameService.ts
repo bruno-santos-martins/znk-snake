@@ -49,12 +49,7 @@ export class GameService {
   respawn(playerId: string): Player {
     const player = this.store.getPlayer(playerId);
     if (!player) throw new Error('Player not found');
-    const reservation = this.colorService.reserveColor(this.store.colorReservations, playerId, env.RESERVATION_TTL_MS, {
-      excludeColors: [player.color]
-    });
-    const claimed = this.colorService.claimReservedColor(this.store.colorReservations, reservation.reservationId, playerId);
-    if (!claimed) throw new Error('Failed to reserve color');
-    player.color = claimed;
+    // Preserve the original chosen color between deaths within the same cycle.
     player.status = 'alive';
     this.spawnOrRespawn(player);
     return player;
@@ -377,7 +372,6 @@ export class GameService {
     const player = this.store.getPlayer(snake.playerId);
     if (player) {
       player.status = 'dead';
-      this.playerService.releaseColor(player.color);
     }
     this.store.state.board.snakes = this.store.state.board.snakes.filter((s) => s.id !== snake.id);
   }
