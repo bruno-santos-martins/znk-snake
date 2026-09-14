@@ -16,7 +16,7 @@ export const GamePage: React.FC = () => {
   return (
     <main className="game-shell">
       <PlayerHUD name={player.name} color={player.color} score={player.score} kills={player.kills} freeCells={freeCells} />
-      <Board snakes={state.board.snakes} food={state.board.food} />
+      <Board snakes={state.board.snakes} players={state.players} food={state.board.food} />
       <MastersRank masters={state.masters} />
       <DeathOverlay show={isDead} onRespawn={respawn} />
       <VictoryModal victory={victory} />
