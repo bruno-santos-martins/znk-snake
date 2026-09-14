@@ -3,19 +3,25 @@ import type { Direction, GameVictoryPayload, PlayerDiedPayload, PlayerJoinPayloa
 import { GameController } from '../controllers/GameController';
 
 export const registerGameSocket = (io: Server, controller: GameController, tickFn: () => void): void => {
+  const emitState = () => {
+    const state = controller.state();
+    const snakeCells = state.board.snakes.reduce((acc, s) => acc + s.segments.length, 0);
+    const freeCells = state.board.totalCells - snakeCells - state.board.food.length;
+    io.emit('game:state', { state, freeCells });
+  };
+
+  // Keep one authoritative game loop for the whole server.
+  const ticker = setInterval(() => {
+    tickFn();
+    emitState();
+  }, 150);
+
   io.on('connection', (socket) => {
     const resolvePlayerId = (sessionId?: string): string => {
       const normalized = typeof sessionId === 'string' ? sessionId.trim() : '';
       const playerId = normalized.length > 0 ? normalized : socket.id;
       socket.data.playerId = playerId;
       return playerId;
-    };
-
-    const emitState = () => {
-      const state = controller.state();
-      const snakeCells = state.board.snakes.reduce((acc, s) => acc + s.segments.length, 0);
-      const freeCells = state.board.totalCells - snakeCells - state.board.food.length;
-      io.emit('game:state', { state, freeCells });
     };
 
     socket.on('player:prepare', (payload: PlayerPreparePayload) => {
@@ -76,14 +82,9 @@ export const registerGameSocket = (io: Server, controller: GameController, tickF
     });
 
     emitState();
-
-    const ticker = setInterval(() => {
-      tickFn();
-      emitState();
-    }, 150);
-
-    socket.on('disconnect', () => clearInterval(ticker));
   });
+
+  io.on('close', () => clearInterval(ticker));
 };
 
 export const emitTickEvents = (

@@ -8,6 +8,7 @@ export const useGameState = () => {
     state: ctx.state,
     freeCells: ctx.freeCells,
     reservation: ctx.reservation,
+    errorMessage: ctx.errorMessage,
     isDead: ctx.isDead,
     victory: ctx.victory,
     prepare: ctx.prepare,
