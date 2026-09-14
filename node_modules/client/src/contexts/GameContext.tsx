@@ -59,10 +59,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     socket.on('game:state', (payload: { state: GameState; freeCells: number }) => {
       setState(payload.state);
       setFreeCells(payload.freeCells);
-      if (player) {
-        const updated = payload.state.players.find((p) => p.id === player.id) ?? null;
-        if (updated) setPlayer(updated);
-      }
+      setPlayer((prev) => {
+        if (!prev) return prev;
+        const updated = payload.state.players.find((p) => p.id === prev.id) ?? null;
+        return updated ?? prev;
+      });
     });
     socket.on('game:victory', (payload: GameVictoryPayload) => setVictory(payload));
     socket.on('server:error', (payload: { code: string; message: string }) => {
@@ -79,7 +80,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       socket.off('game:victory');
       socket.off('server:error');
     };
-  }, [socket, player]);
+  }, [socket]);
 
   const prepare = (name: string, preferredColor?: string) => {
     setNameDraft(name);
