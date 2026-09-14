@@ -76,14 +76,14 @@ export class GameService {
     return { died: false };
   }
 
-  tick(): { deaths: { playerId: string; cause: DeathCause }[]; victory: VictoryResult | null; reset: boolean } {
+  tick(): { deaths: { playerId: string; cause: DeathCause; killerPlayerId?: string }[]; victory: VictoryResult | null; reset: boolean } {
     this.colorService.expireReservations(this.store.colorReservations);
     const state = this.store.state;
     const aliveSnakes = state.board.snakes.filter((s) => s.alive);
     const snapshotHeads = new Map<string, Position>();
     for (const snake of aliveSnakes) snapshotHeads.set(snake.id, this.snakeService.nextHead(snake));
 
-    const deaths: { playerId: string; cause: DeathCause }[] = [];
+    const deaths: { playerId: string; cause: DeathCause; killerPlayerId?: string }[] = [];
     const killed = new Set<string>();
 
     for (const snake of aliveSnakes) {
@@ -102,9 +102,10 @@ export class GameService {
       if (killed.has(snake.id)) continue;
       const next = snapshotHeads.get(snake.id)!;
       const others = aliveSnakes.filter((s) => s.id !== snake.id);
-      if (this.snakeService.isBodyCollision(others, snake.id, next)) {
+      const killer = others.find((s) => s.segments.some((seg) => samePos(seg, next)));
+      if (killer) {
         killed.add(snake.id);
-        deaths.push({ playerId: snake.playerId, cause: 'enemy-body' });
+        deaths.push({ playerId: snake.playerId, cause: 'enemy-body', killerPlayerId: killer.playerId });
       }
     }
 
@@ -129,10 +130,17 @@ export class GameService {
           }
 
           const loser = aSize > bSize ? b : a;
-          deaths.push({ playerId: loser.playerId, cause: 'head-to-head' });
+          const winner = aSize > bSize ? a : b;
+          deaths.push({ playerId: loser.playerId, cause: 'head-to-head', killerPlayerId: winner.playerId });
           killed.add(loser.id);
         }
       }
+    }
+
+    for (const death of deaths) {
+      if (!death.killerPlayerId) continue;
+      const killer = this.store.getPlayer(death.killerPlayerId);
+      if (killer) killer.kills += 1;
     }
 
     const foodMap = new Map(state.board.food.map((f) => [keyOf(f.position), f]));

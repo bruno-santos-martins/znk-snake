@@ -26,6 +26,7 @@ export type GameStatePayload = {
 export type PlayerDiedPayload = {
   playerId: string;
   cause: DeathCause;
+  killerPlayerId?: string;
 };
 
 export type GameVictoryPayload = {
