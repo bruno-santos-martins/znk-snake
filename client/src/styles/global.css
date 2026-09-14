@@ -1,7 +1,10 @@
 :root {
-  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  font-family: 'Nunito', 'Trebuchet MS', 'Segoe UI', sans-serif;
   color: #f8f9ff;
-  background: radial-gradient(circle at 20% 10%, #1e3a8a 0, #0a0d1f 45%, #060711 100%);
+  background:
+    radial-gradient(circle at 75% 15%, rgba(95, 228, 255, 0.18), transparent 35%),
+    radial-gradient(circle at 12% 8%, rgba(255, 214, 64, 0.2), transparent 25%),
+    linear-gradient(180deg, #0f2238 0%, #0a1323 50%, #080f1b 100%);
 }
 
 * { box-sizing: border-box; }
@@ -25,12 +28,86 @@ body { margin: 0; }
   max-width: 1360px;
   margin: 0 auto;
 }
-.board { position: relative; border: 2px solid #2be3ff; background: rgba(0,0,0,0.35); overflow: hidden; }
+.board {
+  position: relative;
+  border: 2px solid rgba(133, 231, 255, 0.7);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% -30%, rgba(75, 170, 255, 0.45), rgba(11, 27, 48, 0.92) 50%),
+    linear-gradient(180deg, rgba(5, 11, 22, 0.88), rgba(7, 15, 30, 0.98));
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.45),
+    0 0 0 2px rgba(255, 255, 255, 0.08) inset,
+    0 0 40px rgba(70, 228, 255, 0.18);
+  overflow: hidden;
+}
+
+.arena-glow,
+.arena-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.arena-glow {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255, 191, 73, 0.22) 0, transparent 25%),
+    radial-gradient(circle at 80% 14%, rgba(132, 255, 195, 0.2) 0, transparent 24%),
+    radial-gradient(circle at 65% 82%, rgba(78, 177, 255, 0.18) 0, transparent 30%);
+  filter: blur(1px);
+}
+
+.arena-grid {
+  background-image:
+    linear-gradient(rgba(142, 199, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(142, 199, 255, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.65;
+}
 
 .snake, .food { position: absolute; width: 10px; height: 10px; }
-.snake { background: #39ff14; }
-.snake.head { outline: 1px solid #fff; background: #00ff88; }
-.food { border-radius: 50%; background: #ffd166; box-shadow: 0 0 8px #ffd166; }
+.snake {
+  --snake-color: #39ff14;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.7) 0 22%, transparent 24%),
+    radial-gradient(circle at 68% 72%, rgba(0, 0, 0, 0.28) 0 24%, transparent 40%),
+    var(--snake-color);
+  box-shadow:
+    0 0 8px color-mix(in srgb, var(--snake-color) 70%, white 30%),
+    0 0 2px rgba(255, 255, 255, 0.5) inset;
+}
+
+.snake.head {
+  transform: scale(1.18);
+  z-index: 2;
+  box-shadow:
+    0 0 11px color-mix(in srgb, var(--snake-color) 75%, white 25%),
+    0 0 2px rgba(255, 255, 255, 0.65) inset;
+}
+
+.snake.head::before,
+.snake.head::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #0a0a0a;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85);
+}
+
+.snake.head::before { left: 2px; }
+.snake.head::after { right: 2px; }
+
+.food {
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 26%, rgba(255, 252, 230, 0.85), transparent 30%),
+    linear-gradient(150deg, #ffe082, #ffb74d 45%, #ff8f00);
+  box-shadow: 0 0 10px rgba(255, 189, 66, 0.95);
+}
 
 .hud, .rank, .panel { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; }
 .dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #fff; }

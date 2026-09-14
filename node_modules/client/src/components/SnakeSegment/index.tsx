@@ -7,8 +7,7 @@ export const SnakeSegment: React.FC<{ x: number; y: number; isHead: boolean; col
       style={{
         left: x * 10,
         top: y * 10,
-        background: color,
-        filter: isHead ? 'brightness(1.15)' : undefined
+        ['--snake-color' as string]: color
       }}
     />
   );

@@ -8,6 +8,8 @@ export const Board: React.FC<{ snakes: Snake[]; players: Player[]; food: Food[] 
 
   return (
     <div className="board" style={{ width: 800, height: 600 }}>
+      <div className="arena-glow" aria-hidden="true" />
+      <div className="arena-grid" aria-hidden="true" />
       {food.map((f) => (
         <FoodDot key={f.id} x={f.position.x} y={f.position.y} />
       ))}
