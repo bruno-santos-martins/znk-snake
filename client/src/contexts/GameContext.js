@@ -2,6 +2,7 @@ import { jsx as _jsx } from "react/jsx-runtime";
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useSocket } from '../hooks/useSocket';
 const SESSION_STORAGE_KEY = 'znk.sessionId';
+const RESPAWN_COOLDOWN_MS = 10000;
 const ensureSessionId = () => {
     const current = window.localStorage.getItem(SESSION_STORAGE_KEY);
     if (current && current.trim().length > 0)
@@ -22,7 +23,10 @@ export const GameProvider = ({ children }) => {
     const [errorMessage, setErrorMessage] = useState(null);
     const [activityLog, setActivityLog] = useState([]);
     const [victory, setVictory] = useState(null);
+    const [respawnCooldownUntil, setRespawnCooldownUntil] = useState(0);
+    const [nowTs, setNowTs] = useState(() => Date.now());
     const nameByPlayerIdRef = useRef(new Map());
+    const previousStatusRef = useRef(null);
     const pushLog = (entry) => {
         setActivityLog((prev) => [entry, ...prev].slice(0, 10));
     };
@@ -82,6 +86,18 @@ export const GameProvider = ({ children }) => {
             socket.off('server:error');
         };
     }, [socket]);
+    useEffect(() => {
+        const timer = window.setInterval(() => setNowTs(Date.now()), 250);
+        return () => window.clearInterval(timer);
+    }, []);
+    useEffect(() => {
+        const previousStatus = previousStatusRef.current;
+        const currentStatus = player?.status ?? null;
+        if (previousStatus === 'dead' && currentStatus === 'alive') {
+            setRespawnCooldownUntil(Date.now() + RESPAWN_COOLDOWN_MS);
+        }
+        previousStatusRef.current = currentStatus;
+    }, [player?.status]);
     const prepare = (name, preferredColor) => {
         setNameDraft(name);
         socket.emit('player:prepare', { name, sessionId, preferredColor });
@@ -97,6 +113,7 @@ export const GameProvider = ({ children }) => {
     const sendMove = (direction) => {
         socket.emit('player:move', { direction, sessionId });
     };
+    const respawnCooldownRemainingMs = Math.max(0, respawnCooldownUntil - nowTs);
     const value = useMemo(() => ({
         player,
         state,
@@ -106,11 +123,12 @@ export const GameProvider = ({ children }) => {
         activityLog,
         victory,
         isDead: !!player && player.status !== 'alive',
+        respawnCooldownRemainingMs,
         prepare,
         join,
         respawn,
         sendMove
-    }), [player, state, freeCells, reservation, errorMessage, activityLog, victory]);
+    }), [player, state, freeCells, reservation, errorMessage, activityLog, victory, respawnCooldownRemainingMs]);
     return _jsx(GameContext.Provider, { value: value, children: children });
 };
 export const useGameContext = () => {

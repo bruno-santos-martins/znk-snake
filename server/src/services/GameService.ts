@@ -10,6 +10,7 @@ import { keyOf, samePos } from '../utils/position';
 
 export class GameService {
   private nextSpawnedFoodAt = 0;
+  private respawnCooldownUntilByPlayerId = new Map<string, number>();
 
   constructor(
     private store: GameStateStore,
@@ -49,9 +50,16 @@ export class GameService {
   respawn(playerId: string): Player {
     const player = this.store.getPlayer(playerId);
     if (!player) throw new Error('Player not found');
+    const now = Date.now();
+    const cooldownUntil = this.respawnCooldownUntilByPlayerId.get(playerId) ?? 0;
+    if (now < cooldownUntil) {
+      const waitMs = cooldownUntil - now;
+      throw new Error(`Respawn cooldown active for ${waitMs}ms`);
+    }
     // Preserve the original chosen color between deaths within the same cycle.
     player.status = 'alive';
     this.spawnOrRespawn(player);
+    this.respawnCooldownUntilByPlayerId.set(playerId, now + env.RESPAWN_COOLDOWN_MS);
     return player;
   }
 

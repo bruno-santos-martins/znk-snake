@@ -10,6 +10,7 @@ export const useGameState = () => {
         errorMessage: ctx.errorMessage,
         activityLog: ctx.activityLog,
         isDead: ctx.isDead,
+        respawnCooldownRemainingMs: ctx.respawnCooldownRemainingMs,
         victory: ctx.victory,
         prepare: ctx.prepare,
         join: ctx.join,
