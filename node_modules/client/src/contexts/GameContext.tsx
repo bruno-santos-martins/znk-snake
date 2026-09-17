@@ -23,6 +23,7 @@ type Ctx = {
   activityLog: string[];
   victory: GameVictoryPayload | null;
   isDead: boolean;
+  respawnCooldownRemainingMs: number;
   prepare: (name: string, preferredColor?: string) => void;
   join: (name: string) => void;
   respawn: () => void;
@@ -30,6 +31,7 @@ type Ctx = {
 };
 
 const GameContext = createContext<Ctx | null>(null);
+const RESPAWN_COOLDOWN_MS = 10000;
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const socket = useSocket();
@@ -42,7 +44,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activityLog, setActivityLog] = useState<string[]>([]);
   const [victory, setVictory] = useState<GameVictoryPayload | null>(null);
+  const [respawnCooldownUntil, setRespawnCooldownUntil] = useState<number>(0);
+  const [nowTs, setNowTs] = useState<number>(() => Date.now());
   const nameByPlayerIdRef = useRef<Map<string, string>>(new Map());
+  const previousStatusRef = useRef<Player['status'] | null>(null);
 
   const pushLog = (entry: string) => {
     setActivityLog((prev) => [entry, ...prev].slice(0, 10));
@@ -104,6 +109,20 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [socket]);
 
+  useEffect(() => {
+    const timer = window.setInterval(() => setNowTs(Date.now()), 250);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const previousStatus = previousStatusRef.current;
+    const currentStatus = player?.status ?? null;
+    if (previousStatus === 'dead' && currentStatus === 'alive') {
+      setRespawnCooldownUntil(Date.now() + RESPAWN_COOLDOWN_MS);
+    }
+    previousStatusRef.current = currentStatus;
+  }, [player?.status]);
+
   const prepare = (name: string, preferredColor?: string) => {
     setNameDraft(name);
     socket.emit('player:prepare', { name, sessionId, preferredColor });
@@ -122,6 +141,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     socket.emit('player:move', { direction, sessionId });
   };
 
+  const respawnCooldownRemainingMs = Math.max(0, respawnCooldownUntil - nowTs);
+
   const value = useMemo<Ctx>(() => ({
     player,
     state,
@@ -131,11 +152,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     activityLog,
     victory,
     isDead: !!player && player.status !== 'alive',
+    respawnCooldownRemainingMs,
     prepare,
     join,
     respawn,
     sendMove
-  }), [player, state, freeCells, reservation, errorMessage, activityLog, victory]);
+  }), [player, state, freeCells, reservation, errorMessage, activityLog, victory, respawnCooldownRemainingMs]);
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 };

@@ -140,4 +140,33 @@ describe('spawn threshold', () => {
     const respawned = game.respawn('p1');
     expect(respawned.color).toBe(initialColor);
   });
+
+  it('requires 10 seconds between successful respawns of the same player', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+
+    const { store, game } = createGame();
+    const reservation = game.prepare('p1', 'Player 1');
+    game.join('p1', 'Player 1', reservation.reservationId);
+
+    const snake = store.state.board.snakes.find((s) => s.playerId === 'p1');
+    expect(snake).toBeDefined();
+
+    snake!.segments = [{ x: 0, y: 0 }];
+    snake!.direction = 'left';
+    snake!.nextDirection = 'left';
+    game.tick();
+
+    game.respawn('p1');
+
+    snake!.segments = [{ x: 0, y: 0 }];
+    snake!.direction = 'left';
+    snake!.nextDirection = 'left';
+    game.tick();
+
+    expect(() => game.respawn('p1')).toThrow(/Respawn cooldown active/);
+
+    vi.advanceTimersByTime(10000);
+    expect(() => game.respawn('p1')).not.toThrow();
+  });
 });

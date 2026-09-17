@@ -2,6 +2,12 @@
 
 Jogo Snake multiplayer em tempo real com foco em competicao por sobrevivencia, eliminacoes e vitoria por ciclo.
 
+## Jogar Agora
+
+Acesse o jogo online em producao:
+
+https://znk-snake-client.onrender.com
+
 ## Preview
 
 Imagem atual usada do projeto em `docs/images/jogoBanner.jpg`.
